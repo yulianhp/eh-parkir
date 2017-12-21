@@ -7,9 +7,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer  = require('multer')
 var upload = multer({ dest: 'uploads/' })
-const Storage = require('@google-cloud/storage');
 
-var index = require('./routes/index');
+require('dotenv').config()
+
+var storages = require('./routes/storages');
 var users = require('./routes/users');
 
 var app = express();
@@ -27,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
+app.use('/', storages);
 app.use('/users', users);
 
 // catch 404 and forward to error handler
