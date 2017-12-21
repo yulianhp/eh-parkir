@@ -4,7 +4,7 @@ const Control = require('../controller/transaction')
 
 /* GET users listing. */
 router.get('/',Control.findAll)
-router.get('/:id',Control.findPlate)
+router.post('/plate',Control.findPlate)
 router.post('/',Control.add)
 router.put('/:id',Control.update)
 

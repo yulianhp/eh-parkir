@@ -13,11 +13,8 @@ class Transaction{
 
     static add(req,res){
         let input = {
-            checkIn : req.body.checkIn,
-            checkOut : req.body.checkOut,
             licensePlate : req.body.licensePlate,
             photo : req.body.photo,
-            charge : req.body.charge
         }
         Model.create(input,(err,data)=>{
             if(err){
@@ -30,7 +27,7 @@ class Transaction{
 
     static update(req,res){
         let id = req.params.id
-        Model.findByIdAndUpdate(id,{$set: {checkOut:new Date()}},(err,data)=>{
+        Model.findByIdAndUpdate(id,{$set: {checkOut:req.body.checkOut,charge:req.body.charge}},(err,data)=>{
             if(err){
                 res.json({message:err})
             } else{
@@ -40,8 +37,8 @@ class Transaction{
     }
 
     static findPlate(req,res){
-        let id = req.params.id
-        Model.findById(id,(err,data)=>{
+        let number = req.body.licensePlate
+        Model.findOne({licensePlate:number,checkOut:null},(err,data)=>{
             if (err) {
                 res.json({message:err})
             } else{
