@@ -10,7 +10,6 @@ var upload = multer({ dest: 'uploads/' })
 require('dotenv').config()
 
 var storages = require('./routes/storages');
-var users = require('./routes/users');
 var visions = require('./routes/visions');
 var Transaction = require('./routes/transaction');
 
@@ -35,7 +34,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/', storages);
-app.use('/users', users);
 app.use('/visions', visions)
 app.use('/transactions', Transaction);
 
