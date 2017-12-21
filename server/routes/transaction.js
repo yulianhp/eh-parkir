@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const Control = require('../controller/transaction')
+const Control = require('../controllers/transaction')
 
 /* GET users listing. */
 router.get('/',Control.findAll)
