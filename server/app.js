@@ -7,12 +7,16 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer  = require('multer')
 var upload = multer({ dest: 'uploads/' })
-
 require('dotenv').config()
 
 var storages = require('./routes/storages');
 var users = require('./routes/users');
 var visions = require('./routes/visions');
+var Transaction = require('./routes/transaction');
+
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise
+mongoose.connect('mongodb://alangmahendra:alangmahendra@eh-database-shard-00-00-mqjod.mongodb.net:27017,eh-database-shard-00-01-mqjod.mongodb.net:27017,eh-database-shard-00-02-mqjod.mongodb.net:27017/ehparkir?ssl=true&replicaSet=eh-database-shard-0&authSource=admin');
 
 var app = express();
 
@@ -29,9 +33,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/', storages);
 app.use('/users', users);
 app.use('/visions', visions)
+app.use('/transactions', Transaction);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
