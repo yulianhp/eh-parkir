@@ -11,6 +11,7 @@ const Storage = require('@google-cloud/storage');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var visions = require('./routes/visions');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/visions', visions)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
