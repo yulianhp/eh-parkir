@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -6,7 +7,6 @@
   <title>Eh-pakir</title>
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
-  <script type="text/javascript" src="http://unpkg.com/vue"></script>
 </head>
 
 <body>
@@ -103,13 +103,14 @@
               <set-history v-bind:list_history="history">
                 
               </set-history>
-
+              
             </div>
           </div>
         </section>
       </div>
     </div>
   </div>
+  <script type="text/javascript" src="http://unpkg.com/vue"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="http://unpkg.com/axios/dist/axios.min.js"></script>
 
@@ -130,8 +131,7 @@
         <list-history v-for="history in list_history" :list_history="history"></list-history>
         </ul></div>`,
     })
-</script>
-
+  </script>
   <script type="text/javascript">
   new Vue({
     el: '#app',
@@ -215,7 +215,6 @@
             
           })
       }
-
     }
   })
   </script>
