@@ -26,7 +26,7 @@
                   <a class="button is-danger">Checkout</a>
                 </p>
                 <p class="level-item has-text-centered">
-                  <a class="button is-info">History</a>
+                  <a class="button is-info" v-on:click="gethistory">History</a>
                 </p>
               </nav>
             </div>
@@ -100,14 +100,38 @@
               <!-- Checkout -->
 
               <!-- History -->
+              <set-history v-bind:list_history="history">
+                
+              </set-history>
+              
             </div>
           </div>
         </section>
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script type="text/javascript" src="http://unpkg.com/vue"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="http://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script>
+    Vue.component('list-history',{
+        props : ['list_history'],
+        template : `<li>id: {{list_history._id}}<br/>
+                    plat  : {{list_history.licensePlate}}<br>
+                    masuk : {{list_history.checkIn}}<br>
+                    keluar: {{list_history.checkOut}}<br>
+                    tarif : {{list_history.charge}}<br>
+          =========================================
+          </li>`
+    }),
+    Vue.component('set-history',{
+      props: ['list_history'],
+      template : `<div class="container has-text-centered"><ul>
+        <list-history v-for="history in list_history" :list_history="history"></list-history>
+        </ul></div>`,
+    })
+  </script>
   <script type="text/javascript">
   new Vue({
     el: '#app',
@@ -118,7 +142,8 @@
       imageName: null,
       plateNumber: null,
       date: new Date().toLocaleString(),
-      photoLink: null
+      photoLink: null,
+      history:[]
     },
     methods: {
       showCheckin: function() {
@@ -177,6 +202,18 @@
 
           }
         });
+      },
+      gethistory : function(){
+          let getData = this
+          axios.get('http://localhost:3000/transactions')
+          .then(response=>{
+              console.log(response.data.data.id);
+                this.history = response.data.data
+          })
+          .catch(err=>{
+            console.log(err);
+            
+          })
       }
     }
   })
