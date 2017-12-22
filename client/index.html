@@ -1,109 +1,224 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-	<meta charset="UTF-8">
-	<title>Eh-Parkir</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<style>
-  body {
-      font: 20px Montserrat, sans-serif;
-      line-height: 1.8;
-      color: #f5f6f7;
-  }
-  p {font-size: 16px;}
-  .margin {margin-bottom: 45px;}
-  .bg-1 { 
-      background-color: #1abc9c; /* Green */
-      color: #ffffff;
-  }
-  .container-fluid {
-      padding-top: 70px;
-      padding-bottom: 70px;
-  }
-  .navbar {
-      padding-top: 15px;
-      padding-bottom: 15px;
-      border: 0;
-      border-radius: 0;
-      margin-bottom: 0;
-      font-size: 12px;
-      letter-spacing: 5px;
-  }
-  .navbar-nav  li a:hover {
-      color: #1abc9c !important;
-  }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eh-pakir</title>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+  <script type="text/javascript" src="http://unpkg.com/vue"></script>
 </head>
+
 <body>
-	<div id="app"> 
-<nav class="navbar navbar-default">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
-      </button>
-      <a class="navbar-brand" href="#">Me</a>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="#">Check In</a></li>
-        <li><a href="#">Check Out</a></li>
-        <li><a href="#" v-on:click="History">History</a></li>
-      </ul>
+  <div id="app">
+    <div class="columns is-gapless">
+      <div class="column is-one-quarter">
+        <section class="hero is-warning is-bold is-fullheight">
+          <div class="hero-body">
+            <div class="container has-text-centered">
+              <img src="https://cdn4.iconfinder.com/data/icons/smart-city-vol-3/32/smart_parking_car_automatic_vehicle_park-512.png">
+              <br/>
+              <nav class="level">
+                <p class="level-item has-text-centered">
+                  <a class="button is-success" @click="showCheckin()">Checkin</a>
+                </p>
+                <p class="level-item has-text-centered">
+                  <a class="button is-danger">Checkout</a>
+                </p>
+                <p class="level-item has-text-centered">
+                  <a class="button is-info" v-on:click="gethistory">History</a>
+                </p>
+              </nav>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="column">
+        <section class="hero is-light is-fullheight">
+          <div class="hero-body">
+            <div class="container" id="welcome">
+              <h1 class="title has-text-centered" v-if="!showCheckinForm">
+                  Eh-Parking
+              </h1>
+              <p class="subtitle has-text-centered" v-if="!showCheckinForm">
+                Your trully parking solution
+              </p>
+
+              <!-- Checkin -->
+              <div v-if="showCheckinForm == true">
+                <div class="field has-text-centered is-fluid">
+                  <h1 class="title">Check In</h1>
+                  <div class="file has-name is-centered is-info">
+                    <label class="file-label">
+                      <input class="file-input" type="file" @change="onFileChange">
+                      <span class="file-cta">
+                        <span class="file-icon">
+                          <i class="fa fa-upload"></i>
+                        </span>
+                      <span class="file-label">
+                          Upload
+                        </span>
+                      </span>
+                      <span class="file-name">
+                        <p v-if="!imageName">Choose File</p>
+                        <p v-else>{{ imageName}}</p>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="field " v-if="image">
+                  <div class="container is-fluid">
+                    <div class="columns is-mobile">
+                      <div class="column is-half is-half-mobile">
+                        <div class="field">
+                          <label class="label">Plate Number</label>
+                          <div class="control">
+                            <input class="input" type="text" placeholder="e.g B 1234 AC" name="licensePlate" :value=plateNumber>
+                            <input class="input" type="hidden" placeholder="e.g B 1234 AC" name="licensePlate" :value=photoLink>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label class="label">Check in</label>
+                          <div class="control">
+                            <input class="input" type="text" :value="date">
+                          </div>
+                        </div>
+                        <div class="field is-grouped is-grouped-right">
+                        <div class="control">
+                          <button class="button is-primary">Submit</button>
+                        </div>
+                      </div>
+                      </div>
+                      <div class="column">
+                        <img :src="image" width="300" height="300" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Checkout -->
+
+              <!-- History -->
+              <set-history v-bind:list_history="history">
+                
+              </set-history>
+
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
-</nav>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="http://unpkg.com/axios/dist/axios.min.js"></script>
 
-<!-- First Container -->
-<div class="container-fluid bg-1 text-center">
-  <h3 class="margin">Eh parkir</h3>
-  <img src="https://p1podas.files.wordpress.com/2012/12/dsf0524-kevin-raber_nz-wcr.jpg" class="img-responsive img-circle margin" style="display:inline" alt="Bird" width="350" height="350">
-  <!-- Checkin -->
-  <div id="checkin">Ceckin</div>
-
-  <!-- Checkout -->
-  <div id="checkout">Checkout</div>
-
-  <!-- History -->
-  <history ></history>
-</div>
-	</div>
-
-
-
-<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-<script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script type="text/javascript" src="http://unpkg.com/vue/"></script>
-
-<script>
-    Vue.component('history',{
-        template:`
-        <div></div>
-        `
+  <script>
+    Vue.component('list-history',{
+        props : ['list_history'],
+        template : `<li>id: {{list_history._id}}<br/>
+                    plat  : {{list_history.licensePlate}}<br>
+                    masuk : {{list_history.checkIn}}<br>
+                    keluar: {{list_history.checkOut}}<br>
+                    tarif : {{list_history.charge}}<br>
+          =========================================
+          </li>`
+    }),
+    Vue.component('set-history',{
+      props: ['list_history'],
+      template : `<div class="container has-text-centered"><ul>
+        <list-history v-for="history in list_history" :list_history="history"></list-history>
+        </ul></div>`,
     })
 </script>
-<script>
-	new Vue({
-		el: '#app',
-        data:{
-            history:[]
-        },
-        methods:{
-            history : function(){
-                let history = this.history
-                axios.get('http://localhost:3000/transactions')
-                .then(response=>{
-                    console.log(response);
-                    
-                })
-            }
-        }
-	})
-</script>
+
+  <script type="text/javascript">
+  new Vue({
+    el: '#app',
+    data: {
+      message: 'Halo',
+      showCheckinForm: null,
+      image: '',
+      imageName: null,
+      plateNumber: null,
+      date: new Date().toLocaleString(),
+      photoLink: null,
+      history:[]
+    },
+    methods: {
+      showCheckin: function() {
+        this.showCheckinForm = true
+      },
+      onFileChange(e) {
+        console.log(e)
+        var files = e.target.files || e.dataTransfer.files;
+        if (!files.length)
+          return;
+        this.imageName = files[0].name
+        this.showCheckinFormData(files[0])
+        this.createImage(files[0]);
+      },
+      createImage(file) {
+        var image = new Image();
+        var reader = new FileReader();
+        var vm = this;
+
+        reader.onload = (e) => {
+          vm.image = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      },
+      showCheckinFormData: function(e) {
+        let localthis = this
+        $.ajax({
+          type: 'POST',
+          url: 'localhost:3000/upload',
+          data: {image: e},
+          cache: false,
+          processData: false,
+          contentType: "multipart/form-data",
+          success: function(resp) {
+            console.log(resp)
+            $(licensePlate).val() = resp
+            localthis.photoLink = resp
+            $.ajax({
+              type: 'POST',
+              url: 'localhost:3000/transactions/',
+              data: {
+                licensePlate: $(licensePlate).val(),
+                photo: $(photo).val()
+              },
+              success: function(resp) {
+                localthis.plateNumber = null
+                localthis.imageName = null
+                localthis.image = ''
+              },
+              error: function() {
+
+              }
+            });
+          },
+          error: function() {
+
+          }
+        });
+      },
+      gethistory : function(){
+          let getData = this
+          axios.get('http://localhost:3000/transactions')
+          .then(response=>{
+              console.log(response.data.data.id);
+                this.history = response.data.data
+          })
+          .catch(err=>{
+            console.log(err);
+            
+          })
+      }
+
+    }
+  })
+  </script>
 </body>
+
 </html>
