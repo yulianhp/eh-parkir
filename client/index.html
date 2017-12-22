@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eh-pakir</title>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+</head>
+
+<body>
+  <div id="app">
+    <div class="columns is-gapless">
+      <div class="column is-one-quarter">
+        <section class="hero is-warning is-bold is-fullheight">
+          <div class="hero-body">
+            <div class="container has-text-centered">
+              <img src="https://cdn4.iconfinder.com/data/icons/smart-city-vol-3/32/smart_parking_car_automatic_vehicle_park-512.png">
+              <br/>
+              <nav class="level">
+                <p class="level-item has-text-centered">
+                  <a class="button is-success" @click="showCheckin()">Checkin</a>
+                </p>
+                <p class="level-item has-text-centered">
+                  <a class="button is-danger">Checkout</a>
+                </p>
+                <p class="level-item has-text-centered">
+                  <a class="button is-info">History</a>
+                </p>
+              </nav>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="column">
+        <section class="hero is-light is-fullheight">
+          <div class="hero-body">
+            <div class="container" id="welcome">
+              <h1 class="title has-text-centered" v-if="!showCheckinForm">
+                  Eh-Parking
+              </h1>
+              <p class="subtitle has-text-centered" v-if="!showCheckinForm">
+                Your trully parking solution
+              </p>
+
+              <!-- Checkin -->
+              <div v-if="showCheckinForm == true">
+                <div class="field has-text-centered is-fluid">
+                  <h1 class="title">Check In</h1>
+                  <div class="file has-name is-centered is-info">
+                    <label class="file-label">
+                      <input class="file-input" type="file" @change="onFileChange">
+                      <span class="file-cta">
+                        <span class="file-icon">
+                          <i class="fa fa-upload"></i>
+                        </span>
+                      <span class="file-label">
+                          Upload
+                        </span>
+                      </span>
+                      <span class="file-name">
+                        <p v-if="!imageName">Choose File</p>
+                        <p v-else>{{ imageName}}</p>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="field " v-if="image">
+                  <div class="container is-fluid">
+                    <div class="columns is-mobile">
+                      <div class="column is-half is-half-mobile">
+                        <div class="field">
+                          <label class="label">Plate Number</label>
+                          <div class="control">
+                            <input class="input" type="text" placeholder="e.g B 1234 AC" name="licensePlate" :value=plateNumber>
+                            <input class="input" type="hidden" placeholder="e.g B 1234 AC" name="licensePlate" :value=photoLink>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label class="label">Check in</label>
+                          <div class="control">
+                            <input class="input" type="text" :value="date">
+                          </div>
+                        </div>
+                        <div class="field is-grouped is-grouped-right">
+                        <div class="control">
+                          <button class="button is-primary">Submit</button>
+                        </div>
+                      </div>
+                      </div>
+                      <div class="column">
+                        <img :src="image" width="300" height="300" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Checkout -->
+
+              <!-- History -->
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="http://unpkg.com/vue"></script>
+  <script type="text/javascript">
+  new Vue({
+    el: '#app',
+    data: {
+      message: 'Halo',
+      showCheckinForm: null,
+      image: '',
+      imageName: null,
+      plateNumber: null,
+      date: new Date().toLocaleString(),
+      photoLink: null
+    },
+    methods: {
+      showCheckin: function() {
+        this.showCheckinForm = true
+      },
+      onFileChange(e) {
+        console.log(e)
+        var files = e.target.files || e.dataTransfer.files;
+        if (!files.length)
+          return;
+        this.imageName = files[0].name
+        this.showCheckinFormData(files[0])
+        this.createImage(files[0]);
+      },
+      createImage(file) {
+        var image = new Image();
+        var reader = new FileReader();
+        var vm = this;
+
+        reader.onload = (e) => {
+          vm.image = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      },
+      showCheckinFormData: function(e) {
+        let localthis = this
+        $.ajax({
+          type: 'POST',
+          url: 'localhost:3000/upload',
+          data: {image: e},
+          cache: false,
+          processData: false,
+          contentType: "multipart/form-data",
+          success: function(resp) {
+            console.log(resp)
+            $(licensePlate).val() = resp
+            localthis.photoLink = resp
+            $.ajax({
+              type: 'POST',
+              url: 'localhost:3000/transactions/',
+              data: {
+                licensePlate: $(licensePlate).val(),
+                photo: $(photo).val()
+              },
+              success: function(resp) {
+                localthis.plateNumber = null
+                localthis.imageName = null
+                localthis.image = ''
+              },
+              error: function() {
+
+              }
+            });
+          },
+          error: function() {
+
+          }
+        });
+      }
+    }
+  })
+  </script>
+</body>
+
+</html>
