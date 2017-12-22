@@ -16,7 +16,8 @@ class visionController{
 	    // detections.forEach(text => console.log(text));
 			res.status(200).json({
 				message: 'Berhasil cooy',
-				data: detections[0].description
+				data: detections[0].description,
+				link: fileName
 			})
 	  })
 	  .catch(err => {

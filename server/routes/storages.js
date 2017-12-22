@@ -9,7 +9,7 @@ router.get('/', (req, res, next) => {
   res.send({ message: 'Welcome Buddy!' })
 })
 router.post('/upload',
-  images.multer.single('image'),
+  images.multer.single('file'),
   images.sendUploadToGCS, visionController.getOCR
   )
 

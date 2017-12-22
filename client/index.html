@@ -23,7 +23,7 @@
                   <a class="button is-success" @click="showCheckin()">Checkin</a>
                 </p>
                 <p class="level-item has-text-centered">
-                  <a class="button is-danger">Checkout</a>
+                  <a class="button is-danger" @click="showCheckout()">Checkout</a>
                 </p>
                 <p class="level-item has-text-centered">
                   <a class="button is-info">History</a>
@@ -73,8 +73,8 @@
                         <div class="field">
                           <label class="label">Plate Number</label>
                           <div class="control">
-                            <input class="input" type="text" placeholder="e.g B 1234 AC" name="licensePlate" :value=plateNumber>
-                            <input class="input" type="hidden" placeholder="e.g B 1234 AC" name="licensePlate" :value=photoLink>
+                            <input class="input" type="text" placeholder="e.g B 1234 AC" id="licensePlate" :value=plateNumber>
+                            <input class="input" type="hidden" placeholder="e.g B 1234 AC" id="photo" :value=photoLink>
                           </div>
                         </div>
                         <div class="field">
@@ -85,7 +85,7 @@
                         </div>
                         <div class="field is-grouped is-grouped-right">
                         <div class="control">
-                          <button class="button is-primary">Submit</button>
+                          <button class="button is-primary" @click="uploadFromCheckin()">Submit</button>
                         </div>
                       </div>
                       </div>
@@ -98,7 +98,62 @@
               </div>
 
               <!-- Checkout -->
-
+              <div v-if="showCheckoutForm == true">
+                <div class="field has-text-centered is-fluid">
+                  <h1 class="title">Check Out</h1>
+                  <div class="field has-addons" >
+                    <div class="control">
+                      <input id="plateSearch" class="input" type="text" placeholder="Input plate number here">
+                    </div>
+                    <div class="control">
+                      <a class="button is-info" @click="showCheckoutData()">
+                        Search
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="field" v-if="showCheckoutPlate == true">
+                  <div class="container is-fluid">
+                    <div class="columns is-mobile">
+                      <div class="column is-half is-half-mobile">
+                        <div class="field">
+                          <label class="label">Plate Number</label>
+                          <div class="control">
+                            <input id="checkoutLicense" class="input is-static" type="text" :value="plateNumber" readonly>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label class="label">Check in</label>
+                          <div class="control">
+                            <input id="checkoutDateIn" class="input is-static" type="text" :value="checkInDate" readonly>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label class="label">Check out</label>
+                          <div class="control">
+                            <input id="checkoutDateOut" class="input is-static" type="text" :value="checkOutDate" readonly>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label class="label">Tarif</label>
+                          <div class="control">
+                            <input id="checkoutCharge" class="input is-static" type="text" :value="charge" readonly>
+                          </div>
+                        </div>
+                        <div class="field is-grouped is-grouped-right">
+                        <div class="control">
+                          <button class="button is-primary" @click="updateCheckout()">Submit</button>
+                        </div>
+                      </div>
+                      </div>
+                      <div class="column">
+                        <img :src="photoLink" width="300" height="300" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
               <!-- History -->
             </div>
           </div>
@@ -108,21 +163,36 @@
   </div>
   <script type="text/javascript" src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script type="text/javascript" src="http://unpkg.com/vue"></script>
+  <script type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script type="text/javascript">
+  
   new Vue({
     el: '#app',
     data: {
       message: 'Halo',
+      dataId: null,
       showCheckinForm: null,
+      showCheckoutForm: null,
+      showCheckoutPlate: null,
       image: '',
       imageName: null,
       plateNumber: null,
+      checkInDate: null,
+      checkOutDate: null,
+      charge: null,
       date: new Date().toLocaleString(),
       photoLink: null
     },
     methods: {
       showCheckin: function() {
         this.showCheckinForm = true
+        this.showCheckoutForm = false
+        this.showCheckoutPlate = false
+      },
+      showCheckout: function() {
+        this.showCheckoutForm = true
+        this.showCheckinForm = false
+        this.image = ''
       },
       onFileChange(e) {
         console.log(e)
@@ -145,38 +215,95 @@
       },
       showCheckinFormData: function(e) {
         let localthis = this
+        let formData = new FormData()
+        formData.append("file", e)
+        console.log(formData)
         $.ajax({
-          type: 'POST',
-          url: 'localhost:3000/upload',
-          data: {image: e},
+          method: 'POST',
+          url: 'http://localhost:3000/upload',
+          data: formData,
+          enctype: 'multipart/form-data',
           cache: false,
           processData: false,
-          contentType: "multipart/form-data",
+          contentType: false,
           success: function(resp) {
-            console.log(resp)
-            $(licensePlate).val() = resp
-            localthis.photoLink = resp
-            $.ajax({
-              type: 'POST',
-              url: 'localhost:3000/transactions/',
-              data: {
-                licensePlate: $(licensePlate).val(),
-                photo: $(photo).val()
-              },
-              success: function(resp) {
-                localthis.plateNumber = null
-                localthis.imageName = null
-                localthis.image = ''
-              },
-              error: function() {
-
-              }
-            });
+            localthis.plateNumber = resp.data
+            localthis.photoLink = resp.link
+            
+          },
+          error: function(err) {
+            console.log(err)
+          }
+        });
+      },
+      uploadFromCheckin: function (){
+        let localthis = this
+        $.ajax({
+          type: 'POST',
+          url: 'http://localhost:3000/transactions/',
+          data: {
+            licensePlate: $(licensePlate).val(),
+            photo: $(photo).val()
+          },
+          success: function(resp) {
+            localthis.plateNumber = null
+            localthis.imageName = null
+            localthis.image = ''
           },
           error: function() {
 
           }
         });
+      },
+      showCheckoutData: function (){
+        let pembagi = 1000*60*60*24
+        let localthis = this
+        $.ajax({
+          type: 'POST',
+          url: 'http://localhost:3000/transactions/plate',
+          data: {
+            licensePlate: $(plateSearch).val()
+          },
+          success: function(resp){
+            console.log(resp)
+            localthis.showCheckoutPlate = true
+            localthis.dataId = resp.data._id
+            localthis.plateNumber = resp.data.licensePlate
+            localthis.checkInDate = new Date(resp.data.checkIn)
+            localthis.checkOutDate = new Date()
+            localthis.photoLink = resp.data.photo
+            let harga = 0
+            if(((localthis.checkOutDate - new Date(resp.data.checkIn))/pembagi) < 1){
+              harga = 3000
+            } else {
+              harga = Math.ceil((localthis.checkOutDate - new Date(resp.data.checkIn))/pembagi)*3000
+            }
+            localthis.charge = harga
+            
+          },
+          error: function(error) {
+            console.log(error)
+          }
+        })
+      },
+      updateCheckout: function (){
+        let localthis = this
+        $.ajax({
+          type: 'PUT',
+          url: `http://localhost:3000/transactions/${localthis.dataId}`,
+          data: {
+            checkOut: localthis.checkOutDate,
+            charge: localthis.charge
+          },
+          success: function(resp){
+            localthis.showCheckoutForm = null
+            localthis.showCheckoutPlate = null
+            console.log(resp)
+          },
+          error: function(error){
+            console.log(error)
+          }
+        })
       }
     }
   })

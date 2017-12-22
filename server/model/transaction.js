@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var parkir = new Schema({
-checkIn : { type: Date, default: Date.now },
+checkIn : Date,
 checkOut : Date,
 licensePlate : String,
 photo : String,

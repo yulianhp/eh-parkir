@@ -15,6 +15,7 @@ class Transaction{
         let input = {
             licensePlate : req.body.licensePlate,
             photo : req.body.photo,
+            checkIn: new Date()
         }
         Model.create(input,(err,data)=>{
             if(err){
